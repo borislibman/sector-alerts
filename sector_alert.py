@@ -27,10 +27,12 @@ from pathlib import Path
 
 import requests
 
-from dotenv import load_dotenv
 from pathlib import Path
-from dotenv import load_dotenv
-load_dotenv(Path(__file__).parent / ".env")
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).parent / ".env")
+except ImportError:
+    pass
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging.basicConfig(
