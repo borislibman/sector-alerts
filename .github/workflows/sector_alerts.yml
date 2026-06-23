@@ -1,60 +1,8 @@
-name: Sector Spread Alerts
-
-on:
-  schedule:
-    # 9:35 AM ET Mon–Fri (13:35 UTC)
-    - cron: "35 13 * * 1-5"
-    # 4:35 PM ET Mon–Fri (20:35 UTC)
-    - cron: "35 20 * * 1-5"
-  workflow_dispatch:   # manual trigger from Actions tab
-
-jobs:
-  run-alerts:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT }}
-          fetch-depth: 1
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run sector alert
-        env:
-          # Alert behavior — set as repo Variables (not secrets) so they're visible
-          ALERT_PERIOD:    ${{ vars.ALERT_PERIOD    || '1mo' }}
-          ALERT_INTERVAL:  ${{ vars.ALERT_INTERVAL  || '1d' }}
-          ALERT_THRESHOLD: ${{ vars.ALERT_THRESHOLD || '2.0' }}
-          REVERSAL_MIN:    ${{ vars.REVERSAL_MIN     || '1.0' }}
-          COOLDOWN_HRS:    ${{ vars.COOLDOWN_HRS     || '20.0' }}
-          DESKTOP_ALERTS:  "false"   # headless runner
-          STATE_FILE:      sector_state.json
-
-          # Credentials — set as repo Secrets
-          SMTP_HOST:             smtp.gmail.com
-          SMTP_PORT:             "587"
-          SMTP_USER:             ${{ secrets.SMTP_USER }}
-          SMTP_PASS:             ${{ secrets.SMTP_PASS }}
-          ALERT_EMAIL_TO:        ${{ secrets.ALERT_EMAIL_TO }}
-          TWILIO_ACCOUNT_SID:    ${{ secrets.TWILIO_ACCOUNT_SID }}
-          TWILIO_AUTH_TOKEN:     ${{ secrets.TWILIO_AUTH_TOKEN }}
-          TWILIO_FROM_NUMBER:    ${{ secrets.TWILIO_FROM_NUMBER }}
-          TWILIO_TO_NUMBER:      ${{ secrets.TWILIO_TO_NUMBER }}
-
-        run: python sector_alert.py
-
-      - name: Commit updated state file
+- name: Commit updated state file
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/borislibman/sector-alerts.git
           git add sector_state.json
           git diff --staged --quiet \
             || git commit -m "chore: update sector state $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]"
