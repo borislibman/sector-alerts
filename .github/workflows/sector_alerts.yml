@@ -39,6 +39,7 @@ jobs:
           SMTP_USER:       ${{ secrets.SMTP_USER }}
           SMTP_PASS:       ${{ secrets.SMTP_PASS }}
           ALERT_EMAIL_TO:  ${{ secrets.ALERT_EMAIL_TO }}
+	  ANTHROPIC_API_KEY: ${{ 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 }}	
         run: python sector_alert.py
 
       - name: Commit updated state file
