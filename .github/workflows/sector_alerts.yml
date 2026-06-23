@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ github.token }}
           fetch-depth: 1
 
       - name: Set up Python
@@ -28,6 +28,7 @@ jobs:
       - name: Run sector alert
         env:
           ALERT_PERIOD:    ${{ vars.ALERT_PERIOD || '1mo' }}
+          ALERT_INTERVAL:  ${{ vars.ALERT_INTERVAL || '1d' }}
           ALERT_THRESHOLD: ${{ vars.ALERT_THRESHOLD || '2.0' }}
           REVERSAL_MIN:    ${{ vars.REVERSAL_MIN || '1.0' }}
           COOLDOWN_HRS:    ${{ vars.COOLDOWN_HRS || '20.0' }}
@@ -44,7 +45,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/borislibman/sector-alerts.git
+          git remote set-url origin https://x-access-token:${{ github.token }}@github.com/borislibman/sector-alerts.git
           git add sector_state.json
           git diff --staged --quiet || git commit -m "chore: update sector state [skip ci]"
           git push
